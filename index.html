@@ -1,17 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0f0c29" />
-    <title>PaliGazer</title>
-    <style>
-      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0c29; }
-    </style>
-    <script type="module" crossorigin src="/paligazerO/assets/index-DyGJxQ06.js"></script>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PaliGazer - Plagiarism Detection & Academic Management System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #0f0c29 0%, #1a1a4e 30%, #16213e 60%, #0f3460 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .stars {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 1;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 800;
+      color: #7c3aed;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .nav-links { display: flex; gap: 12px; align-items: center; }
+    .nav-links a {
+      color: #b0b0b0;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+    .nav-links a:hover { color: white; background: rgba(255,255,255,0.05); }
+    .nav-links .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      color: white;
+      font-weight: 600;
+    }
+    .nav-links .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(124,58,237,0.3); }
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 50px;
+      font-size: 13px;
+      color: #a78bfa;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(40px, 8vw, 72px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 18px;
+      color: #9ca3af;
+      max-width: 700px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+    .hero-buttons {
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    }
+    .hero-buttons a {
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .hero-buttons .primary {
+      background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      color: white;
+    }
+    .hero-buttons .primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.3); }
+    .hero-buttons .secondary {
+      background: rgba(255,255,255,0.05);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .hero-buttons .secondary:hover { background: rgba(255,255,255,0.1); }
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 40px 0;
+      margin-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .stat-item { text-align: center; }
+    .stat-item .num {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7c3aed, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-item .label { font-size: 14px; color: #9ca3af; margin-top: 4px; }
+    .section { padding: 80px 0; }
+    .section-title { text-align: center; margin-bottom: 60px; }
+    .section-title h2 {
+      font-size: 36px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 12px;
+    }
+    .section-title p { color: #9ca3af; font-size: 16px; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 32px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #7c3aed, #3b82f6);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover { transform: translateY(-4px); border-color: rgba(124,58,237,0.3); }
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .feature-card h3 { font-size: 18px; color: white; margin-bottom: 10px; }
+    .feature-card p { font-size: 14px; color: #9ca3af; line-height: 1.6; }
+    .tech-stack {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      padding: 40px 0;
+    }
+    .tech-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 20px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 100px;
+    }
+    .tech-item .icon { font-size: 32px; }
+    .tech-item .name { font-size: 13px; color: #9ca3af; font-weight: 500; }
+    .cta-section {
+      text-align: center;
+      padding: 80px 0;
+      background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(59,130,246,0.1));
+      border-radius: 30px;
+      margin: 40px 0;
+      border: 1px solid rgba(124,58,237,0.15);
+    }
+    .cta-section h2 { font-size: 36px; font-weight: 700; color: white; margin-bottom: 16px; }
+    .cta-section p { color: #9ca3af; margin-bottom: 32px; font-size: 16px; }
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      color: #6b7280;
+      font-size: 14px;
+    }
+    @media (max-width: 768px) {
+      header { flex-direction: column; gap: 16px; padding: 20px; }
+      .nav-links { flex-wrap: wrap; justify-content: center; }
+      .stats-bar { gap: 30px; flex-wrap: wrap; }
+      .hero { padding: 40px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  <div class="container">
+    <header>
+      <a href="/" class="logo"><div class="logo-icon">&#9670;</div>PaliGazer</a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#tech">Tech Stack</a>
+        <a href="http://localhost:3000/login" class="btn-primary">Launch App</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-badge">&#9679; Advanced Plagiarism Detection Engine</div>
+      <h1>Detect Plagiarism.<br>Empower Learning.</h1>
+      <p>PaliGazer is a comprehensive academic management platform powered by AI that detects plagiarism, provides intelligent feedback, and streamlines the entire academic workflow for students and faculty.</p>
+      <div class="hero-buttons">
+        <a href="http://localhost:3000/register" class="primary">Get Started Free</a>
+        <a href="#features" class="secondary">Explore Features</a>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-item"><div class="num">14+</div><div class="label">Modules</div></div>
+        <div class="stat-item"><div class="num">AI</div><div class="label">Powered</div></div>
+        <div class="stat-item"><div class="num">Real-time</div><div class="label">Reports</div></div>
+        <div class="stat-item"><div class="num">JWT</div><div class="label">Security</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="section-title">
+        <h2>Everything You Need</h2>
+        <p>Complete academic integrity and management platform</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(239,68,68,0.15);color:#ef4444;">&#9888;</div>
+          <h3>Plagiarism Detection</h3>
+          <p>Exact matching, semantic analysis, paraphrase detection, and AI content identification with highlighted source matching.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;">&#9733;</div>
+          <h3>AI-Powered Analysis</h3>
+          <p>Content detection, writing quality evaluation, smart summarization, and personalized recommendations.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(16,185,129,0.15);color:#10b981;">&#9783;</div>
+          <h3>Student Dashboard</h3>
+          <p>Upload assignments, view plagiarism reports, track submission history, receive AI feedback, and download PDF reports.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;">&#9737;</div>
+          <h3>Faculty Dashboard</h3>
+          <p>Manage assignments, review submissions, analyze plagiarism reports, grade with feedback, and monitor performance.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">&#9785;</div>
+          <h3>AI Chatbot Assistant</h3>
+          <p>Answer student queries, provide assignment guidance, and assist with platform navigation in real-time.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(236,72,153,0.15);color:#ec4899;">&#9788;</div>
+          <h3>Certificate Generator</h3>
+          <p>Auto-generate workshop, project, and course completion certificates. Professional resume builder included.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(6,182,212,0.15);color:#06b6d4;">&#9789;</div>
+          <h3>Analytics & Reports</h3>
+          <p>Performance dashboards, plagiarism trends, grade distributions, and student progress tracking with visual insights.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(168,85,247,0.15);color:#a855f7;">&#9830;</div>
+          <h3>Team Collaboration</h3>
+          <p>Create project teams, assign tasks, track contributions, and share resources. Built-in project recommendation engine.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(34,197,94,0.15);color:#22c55e;">&#9826;</div>
+          <h3>Citation Validator</h3>
+          <p>Validate APA, MLA, and IEEE citation formats. Detect missing references and citation errors automatically.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tech">
+      <div class="section-title">
+        <h2>Built With Modern Stack</h2>
+        <p>Reliable, scalable, and production-ready technology</p>
+      </div>
+      <div class="tech-stack">
+        <div class="tech-item"><div class="icon">&#9889;</div><div class="name">React 18</div></div>
+        <div class="tech-item"><div class="icon">&#9881;</div><div class="name">Node.js</div></div>
+        <div class="tech-item"><div class="icon">&#128451;</div><div class="name">Express</div></div>
+        <div class="tech-item"><div class="icon">&#128202;</div><div class="name">PostgreSQL</div></div>
+        <div class="tech-item"><div class="icon">&#128274;</div><div class="name">JWT Auth</div></div>
+        <div class="tech-item"><div class="icon">&#129302;</div><div class="name">REST API</div></div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <h2>Ready to Transform Academic Integrity?</h2>
+      <p>Join PaliGazer and experience the future of plagiarism detection and academic management.</p>
+      <a href="http://localhost:3000/register" style="display:inline-flex;align-items:center;gap:8px;padding:16px 40px;background:linear-gradient(135deg,#7c3aed,#3b82f6);color:white;border-radius:12px;font-size:18px;font-weight:600;text-decoration:none;transition:all 0.3s;">
+        Launch PaliGazer
+      </a>
+    </section>
+
+    <footer>
+      <p>PaliGazer &mdash; Advanced Plagiarism Detection &amp; Academic Management System</p>
+      <p style="margin-top:8px;">Built with React, Node.js, Express &amp; PostgreSQL</p>
+    </footer>
+  </div>
+
+  <script>
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 150; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      star.style.animationDuration = (2 + Math.random() * 3) + 's';
+      starsContainer.appendChild(star);
+    }
+  </script>
+</body>
 </html>
