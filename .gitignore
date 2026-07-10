@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+*.db
+*.log
+uploads/
+dist.zip
+deploy*.js
+.opencode/
